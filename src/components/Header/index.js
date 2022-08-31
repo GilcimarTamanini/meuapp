@@ -4,16 +4,16 @@ import { AuthContext } from '../../contexts/auth';
 import avatar from '../../assets/avatar.png';
 
 import { Link } from 'react-router-dom';
-import { FiHome, FiUser, FiSettings } from 'react-icons/fi';
+import { FiHome, FiUser, FiUsers, FiSettings } from 'react-icons/fi';
 
 export default function Header(){
   const { user } = useContext(AuthContext);
 
-  if(user.avatarUrl == null){
+  /*if(user.avatarUrl == null){
     console.log('img nula')
   } else{
     console.log(user)
-  }
+  }*/
 
   return(
     <div className='sidebar'>
@@ -29,6 +29,11 @@ export default function Header(){
       <Link to="/customers">
         <FiUser color="#FFF" size={24}></FiUser>
         Clientes
+      </Link>
+
+      <Link to="/funcs">
+        <FiUsers color="#FFF" size={24}></FiUsers>
+        Funcionários
       </Link>
 
       <Link to="/profile">
