@@ -3,7 +3,7 @@ import { useState, useEffect, useRef } from 'react';
 
 import Header from '../../components/Header';
 import Title from '../../components/Title';
-import { FiMessageSquare, FiPlus, FiSearch, FiEdit2, FiUsers } from 'react-icons/fi';
+import { FiMessageSquare, FiPlus, FiSearch, FiEdit2, FiUsers, FiDelete, FiUserX } from 'react-icons/fi';
 import { Link } from 'react-router-dom';
 import ModalFuncionario from '../../components/ModalFuncionario';
 import firebase from '../../services/firebaseConnection';
@@ -102,6 +102,16 @@ export default function Funcionarios(){
   function togglePostModal(item){
     setShowPostModal(!showPostModal);
     setDetail(item);
+  }
+
+  async function handleDelete(item){
+    setLoadingMore(true);
+    await firebase.firestore().collection('funcionarios')
+    .doc(item.id)
+    .delete();
+    
+    loadFuncionarios();
+    setLoadingMore(false);
   }
 
   function toggleEditModal(item){
@@ -212,6 +222,12 @@ export default function Funcionarios(){
                         >
                           <FiEdit2 color="#FFF" size={17} cursor="pointer" />
                         </Link>
+
+                        <button className="action" style={{backgroundColor: '#8c0000' }}
+                          onClick={ () => handleDelete(item) }
+                        >
+                          <FiUserX color="#FFF" size={17} cursor="pointer" />
+                        </button>
                       </td>
                     </tr>
                   )

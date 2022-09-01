@@ -1,8 +1,7 @@
 import './funcionariocrud.css'
 import Header from '../../components/Header';
 import Title from '../../components/Title';
-import { useContext, useEffect, useState } from 'react';
-import { AuthContext } from '../../contexts/auth';
+import { useEffect, useState } from 'react';
 import firebase from '../../services/firebaseConnection';
 import { toast } from 'react-toastify';
 import { useHistory, useParams } from 'react-router-dom';
@@ -71,12 +70,18 @@ export default function FuncionarioCRUD(){
       snapshot.forEach((doc) =>{
         //console.log(` cargo sel ${cargoSelected} cargoId ${doc.data().cargoId}`)
 
-        if(doc.data().cargoId <= cargoSelected){
+        listaSuperiores.push({
+          id: doc.id,
+          nome: doc.data().nome,
+          cargoSupId: doc.data().cargoId
+        })
+
+        /*if(doc.data().cargoId <= cargoSelected){
           listaSuperiores.push({
             id: doc.id,
             nome: doc.data().nome
           })
-        }
+        }*/
       })
 
       if(listaSuperiores.length === 0){
@@ -85,14 +90,15 @@ export default function FuncionarioCRUD(){
         return;
       }
 
+      //const indexCargo = listaCargos.findIndex(item => item.id === snapshot.data().cargoId);
+
       setSuperiores(listaSuperiores);
       setSuperiorSelected(superiorId);
       setLoadingSuperiores(false);
 
-      console.log(' pegando hook idfunc: ');
+      //console.log(' pegando hook idfunc: ');
       console.log(' pegando hook lista super: ',listaSuperiores);
-      console.log(' pegando hook superiorId: ',superiorId);
-
+      //console.log(' pegando hook superiorId: ',superiorId);
     })
     .catch((error)=>{
       console.log(' erro ao buscar superiores: ', error)
@@ -102,17 +108,19 @@ export default function FuncionarioCRUD(){
   }
 
   useEffect(()=>{ 
-    loadCargos();
     
+    loadFuncSuperior();
+    loadCargos();
+
     return () => {
       
     }
   }, [id]);
 
-  useEffect(()=>{ 
+  /*useEffect(()=>{ 
 
     loadFuncSuperior();
-  }, [cargoSelected]);
+  }, [cargoSelected]);*/
 
   async function loadIdFunc(listaCargos){
     await firebase.firestore().collection('funcionarios').doc(id)
@@ -135,12 +143,11 @@ export default function FuncionarioCRUD(){
       const indexCargo = listaCargos.findIndex(item => item.id === snapshot.data().cargoId);
       
       setCargoSelected(indexCargo);
-      setSuperiorId(snapshot.data().superiorId);
       setIdFuncionario(true);
 
       //console.log(' pegando hook idfunc: ');
-      //console.log(' pegando hook cargoId: ',indexCargo);
-      //console.log(' pegando hook superiorId: ',superiorSelected);
+      //console.log(' pegando hook cargoId: ',snapshot.data().cargoId);
+      //console.log(' pegando hook superiorId: ',snapshot.data().superiorId);
     })
     .catch((error)=>{
       console.log('Erro com o ID passado: ',error);
@@ -152,7 +159,7 @@ export default function FuncionarioCRUD(){
   async function handleRegister(e){
     e.preventDefault();
 
-    console.log(' cargo id ', nomeCargo)
+    //console.log(' cargo id ', nomeCargo)
     if(idFuncionario){
       await firebase.firestore().collection('funcionarios')
       .doc(id)
@@ -205,8 +212,15 @@ export default function FuncionarioCRUD(){
   }
 
   function handleChangeSuperiores(e){
-    //console.log(' handle superior id ', superiores[e.target.value].id);
-    //console.log(' handle superior nome ', superiores[e.target.value].nome);
+    ///console.log(' cargo func corrente ',cargoId);
+    //console.log(' cargo superior ',superiores[e.target.value].id);
+    if(cargoId < superiores[e.target.value].cargoSupId) {
+      console.log(' teste valid sup');
+      toast.info('Favor selecionar um usuário com o mesmo cargo ou superior!')
+      return;
+    }
+    console.log(' handle superior id ', superiores[e.target.value].id);
+    console.log(' handle superior nome ', superiores[e.target.value].nome);
     setNomeSuperior(superiores[e.target.value].nome);
     setSuperiorId(superiores[e.target.value].id);
     setSuperiorSelected(e.target.value);
@@ -216,7 +230,7 @@ export default function FuncionarioCRUD(){
     //console.log(' handle cargo id ', e.target.value);
     //console.log(' handle cargo nome ', cargos[e.target.value].nome);
     setNomeCargo(cargos[e.target.value].nome);
-    setCargoId(e.target.value);
+    setCargoId(cargos[e.target.value].id);
     setCargoSelected(e.target.value);
   }
 
@@ -319,6 +333,7 @@ export default function FuncionarioCRUD(){
                     key={item.id}
                     value={index}
                     nome={item.nome}
+                    cargoSupId={item.cargoSupId}
                   >
                     {item.nome}
                   </option>
